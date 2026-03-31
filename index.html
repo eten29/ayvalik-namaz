@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ayvalık Namaz Vakitleri</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6230;
+    --text: #e8e3d8;
+    --text-dim: #8a8070;
+    --sabah: #4a7fa5;
+    --ogle: #c9a84c;
+    --aksam: #8b5e9e;
+    --active-glow: rgba(201,168,76,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
+
+  /* Starfield background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(74,127,165,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(139,94,158,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 32px 20px 48px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+
+  .bismillah {
+    font-family: 'Amiri', serif;
+    font-size: 28px;
+    color: var(--gold);
+    opacity: 0.85;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    animation: fadeDown 1s ease both;
+  }
+
+  .city-name {
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    animation: fadeDown 1s ease 0.1s both;
+  }
+
+  .date-display {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 300;
+    animation: fadeDown 1s ease 0.2s both;
+  }
+
+  .hijri-date {
+    font-size: 12px;
+    color: var(--gold-dim);
+    margin-top: 4px;
+    font-family: 'Amiri', serif;
+    animation: fadeDown 1s ease 0.3s both;
+  }
+
+  /* Divider */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 24px 0;
+    animation: fadeDown 1s ease 0.3s both;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+  .divider-icon {
+    color: var(--gold);
+    font-size: 14px;
+  }
+
+  /* Prayer cards */
+  .prayers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .prayer-card {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.4s ease;
+    animation: slideUp 0.6s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prayer-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 16px 0 0 16px;
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+
+  .prayer-card.sabah::before { background: var(--sabah); }
+  .prayer-card.ogle::before { background: var(--ogle); }
+  .prayer-card.aksam::before { background: var(--aksam); }
+
+  .prayer-card.active {
+    border-color: rgba(201,168,76,0.3);
+    background: linear-gradient(135deg, var(--surface), rgba(201,168,76,0.05));
+    box-shadow: 0 0 30px var(--active-glow), inset 0 1px 0 rgba(201,168,76,0.15);
+  }
+
+  .prayer-card.active::before { opacity: 1; }
+
+  .prayer-card.passed {
+    opacity: 0.45;
+  }
+
+  .prayer-card:nth-child(1) { animation-delay: 0.4s; }
+  .prayer-card:nth-child(2) { animation-delay: 0.55s; }
+  .prayer-card:nth-child(3) { animation-delay: 0.7s; }
+
+  .prayer-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .prayer-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .sabah .prayer-icon { background: rgba(74,127,165,0.15); }
+  .ogle .prayer-icon { background: rgba(201,168,76,0.15); }
+  .aksam .prayer-icon { background: rgba(139,94,158,0.15); }
+
+  .prayer-info {}
+
+  .prayer-name-tr {
+    font-size: 17px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.2;
+  }
+
+  .prayer-name-ar {
+    font-family: 'Amiri', serif;
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  .prayer-right {
+    text-align: right;
+  }
+
+  .prayer-time {
+    font-size: 26px;
+    font-weight: 300;
+    letter-spacing: -0.5px;
+    line-height: 1;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .active .prayer-time {
+    color: var(--gold-light);
+  }
+
+  .prayer-status {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .active .prayer-status {
+    color: var(--gold);
+  }
+
+  /* Countdown */
+  .countdown-box {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    animation: slideUp 0.6s ease 0.85s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .countdown-box::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+
+  .countdown-label {
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+  }
+
+  .countdown-prayer {
+    font-size: 14px;
+    color: var(--gold);
+    margin-bottom: 12px;
+    font-weight: 500;
+  }
+
+  .countdown-timer {
+    font-size: 42px;
+    font-weight: 300;
+    letter-spacing: 2px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .countdown-timer span {
+    color: var(--gold-light);
+  }
+
+  .countdown-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  /* Month toggle */
+  .month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    animation: slideUp 0.6s ease 0.95s both;
+  }
+
+  .month-title {
+    font-size: 13px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .month-nav {
+    display: flex;
+    gap: 8px;
+  }
+
+  .month-btn {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.15);
+    color: var(--text-dim);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .month-btn:hover {
+    border-color: var(--gold-dim);
+    color: var(--gold);
+  }
+
+  /* Weekly schedule */
+  .week-table {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideUp 0.6s ease 1s both;
+  }
+
+  .week-header {
+    display: grid;
+    grid-template-columns: 90px 1fr 1fr 1fr;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+  }
+
+  .week-header div:not(:first-child) { text-align: center; }
+
+  .week-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 1fr 1fr;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+    font-size: 14px;
+  }
+
+  .week-row:last-child { border-bottom: none; }
+
+  .week-row:hover { background: rgba(201,168,76,0.03); }
+
+  .week-row.today {
+    background: rgba(201,168,76,0.06);
+    border-left: 2px solid var(--gold);
+  }
+
+  .week-row .day-name {
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .week-row.today .day-name {
+    color: var(--gold);
+    font-weight: 500;
+  }
+
+  .week-row div:not(:first-child) {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    font-weight: 300;
+  }
+
+  .sabah-col { color: var(--sabah) !important; }
+  .ogle-col { color: var(--ogle) !important; }
+  .aksam-col { color: var(--aksam) !important; }
+
+  .week-header .sabah-col { color: var(--sabah); }
+  .week-header .ogle-col { color: var(--ogle); }
+  .week-header .aksam-col { color: var(--aksam); }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    animation: fadeDown 1s ease 1.1s both;
+  }
+
+  .footer-text {
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+  }
+
+  .footer-source {
+    font-size: 10px;
+    color: rgba(138,128,112,0.5);
+    margin-top: 6px;
+  }
+
+  /* Animations */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Notification permission */
+  .notif-bar {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: slideUp 0.6s ease 0.35s both;
+  }
+
+  .notif-text {
+    font-size: 13px;
+    color: var(--text-dim);
+    flex: 1;
+  }
+
+  .notif-btn {
+    background: var(--gold);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .notif-btn:hover { background: var(--gold-light); }
+  .notif-btn:disabled { opacity: 0.5; cursor: default; }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <div class="city-name">Ayvalık · Balıkesir</div>
+    <div class="date-display" id="today-date"></div>
+    <div class="hijri-date" id="hijri-date"></div>
+  </div>
+
+  <!-- Notification bar -->
+  <div class="notif-bar" id="notif-bar">
+    <div class="notif-text">🔔 Namaz vakti bildirimleri almak ister misin?</div>
+    <button class="notif-btn" id="notif-btn" onclick="requestNotif()">İzin Ver</button>
+  </div>
+
+  <div class="divider"><span class="divider-icon">✦</span></div>
+
+  <!-- Countdown -->
+  <div class="countdown-box">
+    <div class="countdown-label">Sonraki Namaza Kalan</div>
+    <div class="countdown-prayer" id="next-prayer-name">—</div>
+    <div class="countdown-timer" id="countdown">--:--:--</div>
+    <div class="countdown-sub" id="next-prayer-time"></div>
+  </div>
+
+  <!-- 3 Prayer Cards -->
+  <div class="prayers-grid" id="prayer-cards">
+    <div class="prayer-card sabah" id="card-sabah">
+      <div class="prayer-left">
+        <div class="prayer-icon">🌙</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Sabah</div>
+          <div class="prayer-name-ar">الفجر — Fecr</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-sabah">--:--</div>
+        <div class="prayer-status" id="status-sabah">—</div>
+      </div>
+    </div>
+
+    <div class="prayer-card ogle" id="card-ogle">
+      <div class="prayer-left">
+        <div class="prayer-icon">☀️</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Öğle</div>
+          <div class="prayer-name-ar">الظهر — Zuhr</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-ogle">--:--</div>
+        <div class="prayer-status" id="status-ogle">—</div>
+      </div>
+    </div>
+
+    <div class="prayer-card aksam" id="card-aksam">
+      <div class="prayer-left">
+        <div class="prayer-icon">🌅</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Akşam</div>
+          <div class="prayer-name-ar">المغرب — Mağrib</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-aksam">--:--</div>
+        <div class="prayer-status" id="status-aksam">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Table -->
+  <div class="month-bar">
+    <div class="month-title">Haftalık Takvim</div>
+    <div class="month-nav">
+      <button class="month-btn" onclick="shiftWeek(-1)">‹</button>
+      <button class="month-btn" onclick="shiftWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div class="week-table">
+    <div class="week-header">
+      <div>Tarih</div>
+      <div class="sabah-col">Sabah</div>
+      <div class="ogle-col">Öğle</div>
+      <div class="aksam-col">Akşam</div>
+    </div>
+    <div id="week-rows"></div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Diyanet İşleri Başkanlığı Takvimi</div>
+    <div class="footer-source">namaztakvimi.com · Ayvalık, Balıkesir</div>
+  </div>
+
+</div>
+
+<script>
+// ─── Ayvalık Nisan 2026 Vakitleri (Diyanet) ───────────────────────────────
+// Format: [tarih, sabah(imsak), ogle, aksam]
+const VAKITLER = {
+  // Mart sonu
+  "2026-03-31": ["05:28","13:23","19:42"],
+  // Nisan
+  "2026-04-01": ["05:27","13:22","19:43"],
+  "2026-04-02": ["05:25","13:22","19:44"],
+  "2026-04-03": ["05:23","13:22","19:45"],
+  "2026-04-04": ["05:21","13:21","19:46"],
+  "2026-04-05": ["05:19","13:21","19:47"],
+  "2026-04-06": ["05:18","13:21","19:48"],
+  "2026-04-07": ["05:16","13:21","19:49"],
+  "2026-04-08": ["05:14","13:20","19:50"],
+  "2026-04-09": ["05:12","13:20","19:51"],
+  "2026-04-10": ["05:10","13:20","19:52"],
+  "2026-04-11": ["05:09","13:19","19:53"],
+  "2026-04-12": ["05:07","13:19","19:54"],
+  "2026-04-13": ["05:05","13:19","19:55"],
+  "2026-04-14": ["05:03","13:18","19:56"],
+  "2026-04-15": ["05:01","13:18","19:57"],
+  "2026-04-16": ["05:00","13:18","19:58"],
+  "2026-04-17": ["04:58","13:18","19:59"],
+  "2026-04-18": ["04:56","13:17","20:00"],
+  "2026-04-19": ["04:54","13:17","20:01"],
+  "2026-04-20": ["04:52","13:17","20:02"],
+  "2026-04-21": ["04:51","13:17","20:03"],
+  "2026-04-22": ["04:49","13:16","20:04"],
+  "2026-04-23": ["04:47","13:16","20:05"],
+  "2026-04-24": ["04:46","13:16","20:06"],
+  "2026-04-25": ["04:44","13:16","20:07"],
+  "2026-04-26": ["04:42","13:15","20:08"],
+  "2026-04-27": ["04:41","13:15","20:09"],
+  "2026-04-28": ["04:39","13:15","20:10"],
+  "2026-04-29": ["04:37","13:15","20:11"],
+  "2026-04-30": ["04:36","13:14","20:12"],
+  // Mayıs başı (geçiş için)
+  "2026-05-01": ["04:34","13:14","20:13"],
+  "2026-05-02": ["04:33","13:14","20:14"],
+  "2026-05-03": ["04:31","13:14","20:15"],
+  "2026-05-04": ["04:29","13:14","20:16"],
+  "2026-05-05": ["04:28","13:13","20:17"],
+  "2026-05-06": ["04:26","13:13","20:18"],
+  "2026-05-07": ["04:25","13:13","20:19"],
+};
+
+const GUN_ADLARI = ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
+const AY_ADLARI = ["Ocak","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+
+let weekOffset = 0;
+let countdownInterval = null;
+let scheduledNotifs = [];
+
+function padKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseTime(dateStr, timeStr) {
+  const [h,m] = timeStr.split(':').map(Number);
+  const base = new Date(dateStr + 'T00:00:00');
+  base.setHours(h, m, 0, 0);
+  return base;
+}
+
+function formatDate(date) {
+  return `${date.getDate()} ${AY_ADLARI[date.getMonth()]} ${date.getFullYear()}, ${GUN_ADLARI[date.getDay()]}`;
+}
+
+function getTodayKey() {
+  return padKey(new Date());
+}
+
+function updateHeader() {
+  const now = new Date();
+  document.getElementById('today-date').textContent = formatDate(now);
+  // Approximate hijri (fixed for display)
+  document.getElementById('hijri-date').textContent = '١٢ شوال ١٤٤٧  ·  12 Şevval 1447';
+}
+
+function getVakitForDay(key) {
+  return VAKITLER[key] || null;
+}
+
+function updateCards() {
+  const now = new Date();
+  const todayKey = getTodayKey();
+  const v = getVakitForDay(todayKey);
+  if (!v) return;
+
+  const prayers = [
+    { id: 'sabah', label: 'Sabah Namazı', time: v[0] },
+    { id: 'ogle',  label: 'Öğle Namazı',  time: v[1] },
+    { id: 'aksam', label: 'Akşam Namazı', time: v[2] },
+  ];
+
+  let nextPrayer = null;
+  let nextTime = null;
+
+  prayers.forEach(p => {
+    const t = parseTime(todayKey, p.time);
+    const card = document.getElementById('card-' + p.id);
+    const timeEl = document.getElementById('time-' + p.id);
+    const statusEl = document.getElementById('status-' + p.id);
+    timeEl.textContent = p.time;
+    card.classList.remove('active','passed');
+
+    if (now < t) {
+      if (!nextPrayer) {
+        nextPrayer = p;
+        nextTime = t;
+        card.classList.add('active');
+        statusEl.textContent = 'Sıradaki';
+      } else {
+        statusEl.textContent = 'Bekliyor';
+      }
+    } else {
+      card.classList.add('passed');
+      statusEl.textContent = 'Kılındı';
+    }
+  });
+
+  // If all passed, next is tomorrow's sabah
+  if (!nextPrayer) {
+    const tomorrowKey = padKey(new Date(now.getTime() + 86400000));
+    const tv = getVakitForDay(tomorrowKey);
+    if (tv) {
+      nextPrayer = { id: 'sabah', label: 'Sabah Namazı (Yarın)', time: tv[0] };
+      nextTime = parseTime(tomorrowKey, tv[0]);
+    }
+  }
+
+  // Update countdown
+  if (nextPrayer && nextTime) {
+    document.getElementById('next-prayer-name').textContent = nextPrayer.label;
+    document.getElementById('next-prayer-time').textContent = nextPrayer.time + ' · ' + (nextTime.getDate() === now.getDate() ? 'bugün' : 'yarın');
+    startCountdown(nextTime);
+  }
+}
+
+function startCountdown(target) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  function tick() {
+    const diff = target - new Date();
+    if (diff <= 0) {
+      document.getElementById('countdown').innerHTML = '<span>Vakit Girdi!</span>';
+      setTimeout(updateCards, 3000);
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdown').innerHTML =
+      `<span>${String(h).padStart(2,'0')}</span>:<span>${String(m).padStart(2,'0')}</span>:<span>${String(s).padStart(2,'0')}</span>`;
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+function renderWeekTable() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = padKey(today);
+  const rows = document.getElementById('week-rows');
+  rows.innerHTML = '';
+
+  // Start from Monday of current week + offset
+  const dow = today.getDay(); // 0=Sun
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow + 6) % 7) + (weekOffset * 7));
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = padKey(d);
+    const v = getVakitForDay(key);
+    const isToday = key === todayKey;
+
+    const row = document.createElement('div');
+    row.className = 'week-row' + (isToday ? ' today' : '');
+
+    const dayLabel = `${GUN_ADLARI[d.getDay()]} ${d.getDate()} ${AY_ADLARI[d.getMonth()]}`;
+
+    row.innerHTML = `
+      <div class="day-name">${dayLabel}</div>
+      <div class="sabah-col">${v ? v[0] : '—'}</div>
+      <div class="ogle-col">${v ? v[1] : '—'}</div>
+      <div class="aksam-col">${v ? v[2] : '—'}</div>
+    `;
+    rows.appendChild(row);
+  }
+}
+
+function shiftWeek(dir) {
+  weekOffset += dir;
+  renderWeekTable();
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────
+function requestNotif() {
+  if (!('Notification' in window)) {
+    alert('Tarayıcınız bildirimleri desteklemiyor.');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    const btn = document.getElementById('notif-btn');
+    const bar = document.getElementById('notif-bar');
+    if (perm === 'granted') {
+      btn.textContent = '✓ Aktif';
+      btn.disabled = true;
+      document.querySelector('.notif-text').textContent = '✅ Bildirimler açık — namaz vakitlerinde uyarı alacaksın';
+      scheduleNotifications();
+    } else {
+      bar.style.display = 'none';
+    }
+  });
+}
+
+function scheduleNotifications() {
+  const todayKey = getTodayKey();
+  const v = getVakitForDay(todayKey);
+  if (!v) return;
+
+  const names = ['Sabah Namazı', 'Öğle Namazı', 'Akşam Namazı'];
+  v.forEach((t, i) => {
+    const prayerTime = parseTime(todayKey, t);
+    const notifTime = new Date(prayerTime.getTime() - 10 * 60000); // 10 dk önce
+    const delay = notifTime - new Date();
+    if (delay > 0) {
+      setTimeout(() => {
+        new Notification('🕌 ' + names[i] + ' vakti yaklaşıyor', {
+          body: `Ayvalık · ${t} — 10 dakika kaldı`,
+          icon: 'https://i.imgur.com/mosque.png'
+        });
+      }, delay);
+    }
+  });
+}
+
+// Check existing permission
+if (Notification.permission === 'granted') {
+  document.getElementById('notif-btn').textContent = '✓ Aktif';
+  document.getElementById('notif-btn').disabled = true;
+  document.querySelector('.notif-text').textContent = '✅ Bildirimler açık';
+  scheduleNotifications();
+} else if (Notification.permission === 'denied') {
+  document.getElementById('notif-bar').style.display = 'none';
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────
+updateHeader();
+updateCards();
+renderWeekTable();
+setInterval(updateCards, 60000); // her dakika güncelle
+</script>
+</body>
+</html>
