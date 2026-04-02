@@ -1,62 +1,1391 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Namaz Vakitleri</title>
+<link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Tajawal:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --gold: #c9a84c;
+    --gold-light: #e8c97a;
+    --gold-dim: #7a6230;
+    --text: #e8e3d8;
+    --text-dim: #8a8070;
+    --sabah: #4a7fa5;
+    --ogle: #c9a84c;
+    --aksam: #8b5e9e;
+    --active-glow: rgba(201,168,76,0.15);
+  }
 
-Vakitler yükleniyor…
-بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم
-AYVALIK · BALIKESIR
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow-x: hidden;
+  }
 
-📍
-Konum Değiştir
-▼
-🔔 Namaz vakti bildirimleri almak ister misin?
-İzin Ver
-✦
-SONRAKI NAMAZA KALAN
-—
---:--:--
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: 
+      radial-gradient(ellipse at 20% 50%, rgba(74,127,165,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 20%, rgba(139,94,158,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 80%, rgba(201,168,76,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
 
-🌙
-Sabah
-الفجر — Fecr
---:--
-—
-☀️
-Öğle
-الظهر — Zuhr
---:--
-—
-🌅
-Akşam
-المغرب — Mağrib
---:--
-—
-HAFTALIK TAKVIM
-‹ ›
-TARIH
-SABAH
-ÖĞLE
-AKŞAM
+  .container {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 480px;
+    padding: 32px 20px 48px;
+  }
 
-✦ RUHUNA FATIHA ✦
-Vecihi ŞALMANLI
-Allah rahmet eylesin
-◆
-بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ
-الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ
-الرَّحْمَنِ الرَّحِيمِ
-مَالِكِ يَوْمِ الدِّينِ
-إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ
-اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ
-صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+
+  .bismillah {
+    font-family: 'Amiri', serif;
+    font-size: 28px;
+    color: var(--gold);
+    opacity: 0.85;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    animation: fadeDown 1s ease both;
+  }
+
+  .city-name {
+    font-size: 13px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+    animation: fadeDown 1s ease 0.1s both;
+  }
+
+  .date-display {
+    font-size: 15px;
+    color: var(--text);
+    font-weight: 300;
+    animation: fadeDown 1s ease 0.2s both;
+  }
+
+  .hijri-date {
+    font-size: 12px;
+    color: var(--gold-dim);
+    margin-top: 4px;
+    font-family: 'Amiri', serif;
+    animation: fadeDown 1s ease 0.3s both;
+  }
+
+  /* ── Konum Seçici ── */
+  .location-section {
+    margin-bottom: 20px;
+    animation: slideUp 0.6s ease 0.2s both;
+  }
+
+  .location-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: rgba(201,168,76,0.07);
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 12px;
+    padding: 10px 16px;
+    cursor: pointer;
+    transition: all 0.2s;
+    width: 100%;
+    color: var(--text-dim);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 13px;
+  }
+
+  .location-toggle:hover {
+    border-color: rgba(201,168,76,0.35);
+    color: var(--gold);
+  }
+
+  .location-toggle .loc-icon { font-size: 16px; }
+  .location-toggle .loc-label { flex: 1; text-align: left; }
+  .location-toggle .loc-arrow { font-size: 11px; transition: transform 0.2s; }
+  .location-toggle.open .loc-arrow { transform: rotate(180deg); }
+
+  .location-panel {
+    display: none;
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 8px;
+  }
+
+  .location-panel.open { display: block; }
+
+  .loc-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+
+  .loc-select {
+    flex: 1;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(201,168,76,0.15);
+    border-radius: 8px;
+    padding: 10px 12px;
+    color: var(--text);
+    font-family: 'Tajawal', sans-serif;
+    font-size: 14px;
+    appearance: none;
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238a8070' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    padding-right: 28px;
+    transition: border-color 0.2s;
+  }
+
+  .loc-select:focus {
+    outline: none;
+    border-color: var(--gold-dim);
+  }
+
+  .loc-select option {
+    background: #1a1f2a;
+    color: var(--text);
+  }
+
+  .loc-apply {
+    background: var(--gold);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .loc-apply:hover { background: var(--gold-light); }
+  .loc-apply:disabled { opacity: 0.4; cursor: default; }
+
+  .loc-hint {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  .loc-loading {
+    text-align: center;
+    font-size: 12px;
+    color: var(--gold-dim);
+    padding: 8px 0;
+    display: none;
+  }
+
+  /* ── Divider ── */
+  .divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 20px 0;
+    animation: fadeDown 1s ease 0.3s both;
+  }
+  .divider::before, .divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+  .divider-icon { color: var(--gold); font-size: 14px; }
+
+  /* ── Prayer cards ── */
+  .prayers-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .prayer-card {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 16px;
+    padding: 20px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.4s ease;
+    animation: slideUp 0.6s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .prayer-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 16px 0 0 16px;
+    transition: opacity 0.3s;
+    opacity: 0;
+  }
+
+  .prayer-card.sabah::before { background: var(--sabah); }
+  .prayer-card.ogle::before  { background: var(--ogle); }
+  .prayer-card.aksam::before { background: var(--aksam); }
+
+  .prayer-card.active {
+    border-color: rgba(201,168,76,0.3);
+    background: linear-gradient(135deg, var(--surface), rgba(201,168,76,0.05));
+    box-shadow: 0 0 30px var(--active-glow), inset 0 1px 0 rgba(201,168,76,0.15);
+  }
+
+  .prayer-card.active::before { opacity: 1; }
+  .prayer-card.passed { opacity: 0.45; }
+
+  .prayer-card:nth-child(1) { animation-delay: 0.4s; }
+  .prayer-card:nth-child(2) { animation-delay: 0.55s; }
+  .prayer-card:nth-child(3) { animation-delay: 0.7s; }
+
+  .prayer-left { display: flex; align-items: center; gap: 16px; }
+
+  .prayer-icon {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+
+  .sabah .prayer-icon { background: rgba(74,127,165,0.15); }
+  .ogle  .prayer-icon { background: rgba(201,168,76,0.15); }
+  .aksam .prayer-icon { background: rgba(139,94,158,0.15); }
+
+  .prayer-name-tr { font-size: 17px; font-weight: 500; color: var(--text); line-height: 1.2; }
+  .prayer-name-ar { font-family: 'Amiri', serif; font-size: 13px; color: var(--text-dim); margin-top: 2px; }
+
+  .prayer-right { text-align: right; }
+
+  .prayer-time {
+    font-size: 26px; font-weight: 300; letter-spacing: -0.5px;
+    line-height: 1; color: var(--text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .active .prayer-time  { color: var(--gold-light); }
+
+  .prayer-status {
+    font-size: 11px; color: var(--text-dim);
+    margin-top: 4px; text-transform: uppercase; letter-spacing: 1px;
+  }
+
+  .active .prayer-status { color: var(--gold); }
+
+  /* ── Countdown ── */
+  .countdown-box {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 16px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 24px;
+    animation: slideUp 0.6s ease 0.85s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .countdown-box::after {
+    content: '';
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 60%; height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+
+  .countdown-label { font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); margin-bottom: 10px; }
+  .countdown-prayer { font-size: 14px; color: var(--gold); margin-bottom: 12px; font-weight: 500; }
+  .countdown-timer { font-size: 42px; font-weight: 300; letter-spacing: 2px; color: var(--text); font-variant-numeric: tabular-nums; line-height: 1; }
+  .countdown-timer span { color: var(--gold-light); }
+  .countdown-sub { font-size: 11px; color: var(--text-dim); margin-top: 8px; letter-spacing: 1px; }
+
+  /* ── Week table ── */
+  .month-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+    animation: slideUp 0.6s ease 0.95s both;
+  }
+
+  .month-title { font-size: 13px; letter-spacing: 3px; text-transform: uppercase; color: var(--text-dim); }
+
+  .month-nav { display: flex; gap: 8px; }
+
+  .month-btn {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.15);
+    color: var(--text-dim);
+    width: 32px; height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    transition: all 0.2s;
+  }
+
+  .month-btn:hover { border-color: var(--gold-dim); color: var(--gold); }
+
+  .week-table {
+    background: var(--surface);
+    border: 1px solid rgba(201,168,76,0.1);
+    border-radius: 16px;
+    overflow: hidden;
+    animation: slideUp 0.6s ease 1s both;
+  }
+
+  .week-header {
+    display: grid;
+    grid-template-columns: 90px 1fr 1fr 1fr;
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(201,168,76,0.08);
+    font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text-dim);
+  }
+
+  .week-header div:not(:first-child) { text-align: center; }
+
+  .week-row {
+    display: grid;
+    grid-template-columns: 90px 1fr 1fr 1fr;
+    padding: 13px 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+    transition: background 0.2s;
+    font-size: 14px;
+  }
+
+  .week-row:last-child { border-bottom: none; }
+  .week-row:hover { background: rgba(201,168,76,0.03); }
+
+  .week-row.today {
+    background: rgba(201,168,76,0.06);
+    border-left: 2px solid var(--gold);
+  }
+
+  .week-row .day-name { color: var(--text-dim); font-size: 12px; }
+  .week-row.today .day-name { color: var(--gold); font-weight: 500; }
+
+  .week-row div:not(:first-child) {
+    text-align: center;
+    font-variant-numeric: tabular-nums;
+    color: var(--text); font-weight: 300;
+  }
+
+  .sabah-col { color: var(--sabah) !important; }
+  .ogle-col  { color: var(--ogle)  !important; }
+  .aksam-col { color: var(--aksam) !important; }
+
+  .week-header .sabah-col { color: var(--sabah); }
+  .week-header .ogle-col  { color: var(--ogle); }
+  .week-header .aksam-col { color: var(--aksam); }
+
+  /* ── Fatiha bölümü ── */
+  .fatiha-section {
+    margin-top: 40px;
+    background: linear-gradient(135deg, rgba(201,168,76,0.05), rgba(139,94,158,0.05));
+    border: 1px solid rgba(201,168,76,0.18);
+    border-radius: 20px;
+    padding: 28px 24px;
+    text-align: center;
+    animation: slideUp 0.6s ease 1.1s both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .fatiha-section::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+
+  .fatiha-section::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 10%; right: 10%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--gold-dim), transparent);
+  }
+
+  .fatiha-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 14px;
+  }
+
+  .fatiha-name {
+    font-size: 20px;
+    font-weight: 500;
+    color: var(--gold-light);
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+
+  .fatiha-dates {
+    font-size: 12px;
+    color: var(--text-dim);
+    margin-bottom: 18px;
+  }
+
+  .fatiha-arabic {
+    font-family: 'Amiri', serif;
+    font-size: 26px;
+    color: var(--gold);
+    line-height: 1.8;
+    margin-bottom: 16px;
+    opacity: 0.9;
+  }
+
+  .fatiha-turkish {
+    font-size: 12px;
+    color: var(--text-dim);
+    line-height: 1.7;
+    font-style: italic;
+    max-width: 340px;
+    margin: 0 auto 16px;
+  }
+
+  .fatiha-dua {
+    font-size: 13px;
+    color: rgba(201,168,76,0.6);
+    letter-spacing: 0.5px;
+  }
+
+  .fatiha-divider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 14px 0;
+  }
+
+  .fatiha-divider::before, .fatiha-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(to right, transparent, rgba(201,168,76,0.2), transparent);
+  }
+
+  .fatiha-divider-icon { color: var(--gold-dim); font-size: 10px; }
+
+  /* ── Notification bar ── */
+  .notif-bar {
+    background: rgba(201,168,76,0.08);
+    border: 1px solid rgba(201,168,76,0.2);
+    border-radius: 12px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 20px;
+    animation: slideUp 0.6s ease 0.35s both;
+  }
+
+  .notif-text { font-size: 13px; color: var(--text-dim); flex: 1; }
+
+  .notif-btn {
+    background: var(--gold);
+    color: #0d1117;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: 'Tajawal', sans-serif;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+
+  .notif-btn:hover { background: var(--gold-light); }
+  .notif-btn:disabled { opacity: 0.5; cursor: default; }
+
+  /* ── Footer ── */
+  .footer {
+    text-align: center;
+    margin-top: 32px;
+    animation: fadeDown 1s ease 1.1s both;
+  }
+
+  .footer-text  { font-size: 11px; color: var(--text-dim); letter-spacing: 1px; }
+  .footer-source { font-size: 10px; color: rgba(138,128,112,0.5); margin-top: 6px; }
+
+  /* ── API loading overlay ── */
+  .api-loading {
+    position: fixed;
+    inset: 0;
+    background: rgba(13,17,23,0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .api-loading.show { opacity: 1; pointer-events: all; }
+
+  .api-loading-inner {
+    text-align: center;
+    color: var(--gold);
+  }
+
+  .api-spinner {
+    width: 36px; height: 36px;
+    border: 2px solid rgba(201,168,76,0.2);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 12px;
+  }
+
+  .api-loading-text { font-size: 13px; color: var(--text-dim); letter-spacing: 1px; }
+
+  /* ── Animations ── */
+  @keyframes fadeDown {
+    from { opacity: 0; transform: translateY(-12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+</style>
+</head>
+<body>
+
+<!-- API Loading overlay -->
+<div class="api-loading" id="api-loading">
+  <div class="api-loading-inner">
+    <div class="api-spinner"></div>
+    <div class="api-loading-text">Vakitler yükleniyor…</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="bismillah">بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيم</div>
+    <div class="city-name" id="city-display">Ayvalık · Balıkesir</div>
+    <div class="date-display" id="today-date"></div>
+    <div class="hijri-date" id="hijri-date"></div>
+  </div>
+
+  <!-- Konum Seçici -->
+  <div class="location-section">
+    <button class="location-toggle" id="loc-toggle" onclick="toggleLocationPanel()">
+      <span class="loc-icon">📍</span>
+      <span class="loc-label">Konum Değiştir</span>
+      <span class="loc-arrow">▼</span>
+    </button>
+    <div class="location-panel" id="loc-panel">
+      <div class="loc-row">
+        <select class="loc-select" id="sel-il" onchange="onIlChange()">
+          <option value="">— İl Seçin —</option>
+        </select>
+        <select class="loc-select" id="sel-ilce" disabled>
+          <option value="">— İlçe —</option>
+        </select>
+      </div>
+      <div class="loc-loading" id="loc-loading">⏳ İlçeler yükleniyor…</div>
+      <div class="loc-row" style="margin-bottom:10px">
+        <button class="loc-apply" id="loc-apply-btn" onclick="applyLocation()" disabled>
+          ✓ Uygula
+        </button>
+      </div>
+      <div class="loc-hint">Seçim kaydedilir, bir daha sormaz</div>
+    </div>
+  </div>
+
+  <!-- Notification bar -->
+  <div class="notif-bar" id="notif-bar">
+    <div class="notif-text">🔔 Namaz vakti bildirimleri almak ister misin?</div>
+    <button class="notif-btn" id="notif-btn" onclick="requestNotif()">İzin Ver</button>
+  </div>
+
+  <div class="divider"><span class="divider-icon">✦</span></div>
+
+  <!-- Countdown -->
+  <div class="countdown-box">
+    <div class="countdown-label">Sonraki Namaza Kalan</div>
+    <div class="countdown-prayer" id="next-prayer-name">—</div>
+    <div class="countdown-timer" id="countdown">--:--:--</div>
+    <div class="countdown-sub" id="next-prayer-time"></div>
+  </div>
+
+  <!-- 3 Prayer Cards -->
+  <div class="prayers-grid" id="prayer-cards">
+    <div class="prayer-card sabah" id="card-sabah">
+      <div class="prayer-left">
+        <div class="prayer-icon">🌙</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Sabah</div>
+          <div class="prayer-name-ar">الفجر — Fecr</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-sabah">--:--</div>
+        <div class="prayer-status" id="status-sabah">—</div>
+      </div>
+    </div>
+
+    <div class="prayer-card ogle" id="card-ogle">
+      <div class="prayer-left">
+        <div class="prayer-icon">☀️</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Öğle</div>
+          <div class="prayer-name-ar">الظهر — Zuhr</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-ogle">--:--</div>
+        <div class="prayer-status" id="status-ogle">—</div>
+      </div>
+    </div>
+
+    <div class="prayer-card aksam" id="card-aksam">
+      <div class="prayer-left">
+        <div class="prayer-icon">🌅</div>
+        <div class="prayer-info">
+          <div class="prayer-name-tr">Akşam</div>
+          <div class="prayer-name-ar">المغرب — Mağrib</div>
+        </div>
+      </div>
+      <div class="prayer-right">
+        <div class="prayer-time" id="time-aksam">--:--</div>
+        <div class="prayer-status" id="status-aksam">—</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Weekly Table -->
+  <div class="month-bar">
+    <div class="month-title">Haftalık Takvim</div>
+    <div class="month-nav">
+      <button class="month-btn" onclick="shiftWeek(-1)">‹</button>
+      <button class="month-btn" onclick="shiftWeek(1)">›</button>
+    </div>
+  </div>
+
+  <div class="week-table">
+    <div class="week-header">
+      <div>Tarih</div>
+      <div class="sabah-col">Sabah</div>
+      <div class="ogle-col">Öğle</div>
+      <div class="aksam-col">Akşam</div>
+    </div>
+    <div id="week-rows"></div>
+  </div>
+
+  <!-- Vecihi Şalmanlı Fatiha -->
+  <div class="fatiha-section">
+    <div class="fatiha-label">✦ Ruhuna Fatiha ✦</div>
+    <div class="fatiha-name">Vecihi ŞALMANLI</div>
+    <div class="fatiha-dates">Allah rahmet eylesin</div>
+
+    <div class="fatiha-divider">
+      <span class="fatiha-divider-icon">◆</span>
+    </div>
+
+    <div class="fatiha-arabic">
+بِسْمِ اللَّهِ الرَّحْمَنِ الرَّحِيمِ<br>
+الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ<br>
+الرَّحْمَنِ الرَّحِيمِ<br>
+مَالِكِ يَوْمِ الدِّينِ<br>
+إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ<br>
+اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ<br>
+صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ<br>
 غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ
-◆
-Rahman ve Rahim olan Allah'ın adıyla.
-Hamd, âlemlerin Rabbi Allah'a mahsustur.
-O, Rahman'dır, Rahim'dir.
-Din gününün sahibidir.
-Ancak Sana ibadet eder, ancak Senden yardım dileriz.
-Bizi doğru yola ilet.
-Kendilerine nimet verdiklerinin yoluna;
-Gazaba uğrayanların ve sapkınların yoluna değil.
-آمِين — Âmin
-Diyanet İşleri Başkanlığı Takvimi
-aladhan.com · Ayvalık, Balıkesir
+    </div>
+
+    <div class="fatiha-divider">
+      <span class="fatiha-divider-icon">◆</span>
+    </div>
+
+    <div class="fatiha-turkish">
+      Rahman ve Rahim olan Allah'ın adıyla.<br>
+      Hamd, âlemlerin Rabbi Allah'a mahsustur.<br>
+      O, Rahman'dır, Rahim'dir.<br>
+      Din gününün sahibidir.<br>
+      Ancak Sana ibadet eder, ancak Senden yardım dileriz.<br>
+      Bizi doğru yola ilet.<br>
+      Kendilerine nimet verdiklerinin yoluna;<br>
+      Gazaba uğrayanların ve sapkınların yoluna değil.
+    </div>
+
+    <div class="fatiha-dua">آمِين — Âmin</div>
+  </div>
+
+  <div class="footer">
+    <div class="footer-text">Diyanet İşleri Başkanlığı Takvimi</div>
+    <div class="footer-source" id="footer-source">aladhan.com · Ayvalık, Balıkesir</div>
+  </div>
+
+</div>
+
+<script>
+// ─── Türkiye İlleri ve Diyanet şehir ID'leri (aladhan.com için) ───────────
+// aladhan.com city parametreleri ile kullanılacak
+const ILLER = [
+  "Adana","Adıyaman","Afyonkarahisar","Ağrı","Amasya","Ankara","Antalya","Artvin",
+  "Aydın","Balıkesir","Bilecik","Bingöl","Bitlis","Bolu","Burdur","Bursa","Çanakkale",
+  "Çankırı","Çorum","Denizli","Diyarbakır","Edirne","Elazığ","Erzincan","Erzurum",
+  "Eskişehir","Gaziantep","Giresun","Gümüşhane","Hakkari","Hatay","Isparta","İçel",
+  "İstanbul","İzmir","Kars","Kastamonu","Kayseri","Kırklareli","Kırşehir","Kocaeli",
+  "Konya","Kütahya","Malatya","Manisa","Kahramanmaraş","Mardin","Muğla","Muş",
+  "Nevşehir","Niğde","Ordu","Rize","Sakarya","Samsun","Siirt","Sinop","Sivas",
+  "Tekirdağ","Tokat","Trabzon","Tunceli","Şanlıurfa","Uşak","Van","Yozgat","Zonguldak",
+  "Aksaray","Bayburt","Karaman","Kırıkkale","Batman","Şırnak","Bartın","Ardahan",
+  "Iğdır","Yalova","Karabük","Kilis","Osmaniye","Düzce"
+];
+
+// İlçe verileri — aladhan.com latitude/longitude ile çalışacak
+// Yaygın ilçeler için koordinat eşleştirmesi
+const ILCE_COORDS = {
+  "Balıkesir": {
+    "Ayvalık":     [39.3194, 26.6969],
+    "Merkez":      [39.6484, 27.8826],
+    "Bandırma":    [40.3500, 27.9667],
+    "Bigadiç":     [39.3919, 28.1286],
+    "Burhaniye":   [39.4994, 26.9772],
+    "Dursunbey":   [39.5814, 28.6236],
+    "Edremit":     [39.5956, 27.0239],
+    "Erdek":       [40.3992, 27.7961],
+    "Gömeç":       [39.4472, 26.8575],
+    "Gönen":       [40.0994, 27.6536],
+    "Havran":      [39.5536, 27.0886],
+    "İvrindi":     [39.5744, 27.4931],
+    "Kepsut":      [39.6811, 27.9983],
+    "Manyas":      [40.0428, 27.9825],
+    "Marmara":     [40.6231, 27.5528],
+    "Savaştepe":   [39.3831, 27.6672],
+    "Sındırgı":    [39.2400, 28.1700],
+    "Susurluk":    [40.1744, 27.9025],
+  },
+  "İstanbul": {
+    "Merkez (Fatih)": [41.0136, 28.9550],
+    "Beşiktaş":    [41.0422, 29.0072],
+    "Kadıköy":     [40.9906, 29.0233],
+    "Üsküdar":     [41.0244, 29.0150],
+    "Beyoğlu":     [41.0339, 28.9878],
+    "Şişli":       [41.0602, 28.9875],
+    "Bakırköy":    [40.9822, 28.8800],
+    "Bahçelievler":[40.9989, 28.8506],
+    "Bağcılar":    [41.0333, 28.8561],
+    "Esenler":     [41.0447, 28.8878],
+    "Güngören":    [41.0156, 28.8869],
+    "Zeytinburnu": [41.0028, 28.9083],
+    "Eyüpsultan":  [41.0478, 28.9353],
+    "Kağıthane":   [41.0750, 28.9753],
+    "Sarıyer":     [41.1661, 29.0572],
+    "Beykoz":      [41.1267, 29.0939],
+    "Ataşehir":    [40.9894, 29.1275],
+    "Maltepe":     [40.9350, 29.1183],
+    "Kartal":      [40.9097, 29.1931],
+    "Pendik":      [40.8781, 29.2319],
+    "Tuzla":       [40.8161, 29.2986],
+    "Çekmeköy":    [41.0472, 29.1769],
+    "Sultanbeyli":  [40.9711, 29.2653],
+    "Sancaktepe":  [41.0039, 29.2286],
+    "Ümraniye":    [41.0153, 29.1292],
+    "Gaziosmanpaşa":[41.0667, 28.9083],
+    "Küçükçekmece":[41.0167, 28.7750],
+    "Bağcılar":    [41.0333, 28.8561],
+    "Avcılar":     [40.9800, 28.7217],
+    "Esenyurt":    [41.0358, 28.6728],
+    "Başakşehir":  [41.0944, 28.8014],
+    "Arnavutköy":  [41.1869, 28.7400],
+    "Sultangazi":  [41.1000, 28.9000],
+    "Bayrampaşa":  [41.0467, 28.9219],
+    "Silivri":     [41.0736, 28.2475],
+    "Büyükçekmece":[41.0181, 28.5858],
+    "Çatalca":     [41.1439, 28.4636],
+    "Şile":        [41.1756, 29.6103],
+    "Adalar":      [40.8783, 29.0756],
+  },
+  "Ankara": {
+    "Merkez (Çankaya)": [39.9208, 32.8541],
+    "Keçiören":    [39.9792, 32.8597],
+    "Mamak":       [39.9222, 32.9117],
+    "Yenimahalle": [39.9647, 32.7900],
+    "Altındağ":    [39.9542, 32.8697],
+    "Etimesgut":   [39.9447, 32.6803],
+    "Sincan":      [39.9750, 32.5808],
+    "Gölbaşı":     [39.7869, 32.8036],
+    "Polatlı":     [39.5847, 32.1472],
+    "Beypazarı":   [40.1689, 31.9200],
+  },
+  "İzmir": {
+    "Merkez (Konak)":[38.4237, 27.1428],
+    "Karşıyaka":   [38.4567, 27.1136],
+    "Bornova":     [38.4689, 27.2194],
+    "Buca":        [38.3819, 27.1747],
+    "Çiğli":       [38.5058, 27.0597],
+    "Gaziemir":    [38.3194, 27.1311],
+    "Güzelbahçe":  [38.3719, 26.8772],
+    "Karabağlar":  [38.3694, 27.1383],
+    "Bayraklı":    [38.4611, 27.1606],
+    "Balçova":     [38.3897, 27.0444],
+    "Aliağa":      [38.8019, 26.9750],
+    "Bergama":     [39.1206, 27.1764],
+    "Kemalpaşa":   [38.4258, 27.4244],
+    "Menemen":     [38.6094, 27.0606],
+    "Ödemiş":      [38.2264, 27.9742],
+    "Selçuk":      [37.9511, 27.3681],
+    "Tire":        [38.0936, 27.7333],
+    "Torbalı":     [38.1628, 27.3606],
+    "Urla":        [38.3217, 26.7628],
+    "Çeşme":       [38.3239, 26.3022],
+    "Foça":        [38.6692, 26.7558],
+  },
+  "Bursa": {
+    "Merkez (Osmangazi)":[40.1908, 29.0608],
+    "Nilüfer":     [40.2231, 28.9747],
+    "Yıldırım":    [40.1933, 29.1053],
+    "Gemlik":      [40.4325, 29.1611],
+    "İnegöl":      [40.0767, 29.5136],
+    "İznik":       [40.4278, 29.7214],
+    "Mustafakemalpaşa":[40.0344, 28.4067],
+    "Mudanya":     [40.3761, 28.8875],
+    "Orhangazi":   [40.4903, 29.3069],
+    "Karacabey":   [40.2200, 28.3533],
+  },
+  "Antalya": {
+    "Merkez (Muratpaşa)":[36.8969, 30.7133],
+    "Alanya":      [36.5440, 32.0000],
+    "Manavgat":    [36.7858, 31.4394],
+    "Serik":       [36.9258, 31.1006],
+    "Kemer":       [36.5978, 30.5594],
+    "Kepez":       [37.0092, 30.7453],
+    "Konyaaltı":   [36.8617, 30.6236],
+    "Finike":      [36.2994, 30.1503],
+    "Kaş":         [36.2011, 29.6369],
+  },
+  "Konya": {
+    "Merkez (Selçuklu)":[37.8714, 32.4850],
+    "Karatay":     [37.8792, 32.5153],
+    "Meram":       [37.8494, 32.4319],
+    "Ereğli":      [37.5131, 34.0494],
+    "Akşehir":     [38.3572, 31.4203],
+    "Beyşehir":    [37.6792, 31.7258],
+    "Çumra":       [37.5736, 32.7761],
+  },
+  "Adana": {
+    "Merkez (Seyhan)":[37.0017, 35.3289],
+    "Çukurova":    [37.0317, 35.3431],
+    "Yüreğir":     [36.9631, 35.3847],
+    "Ceyhan":      [37.0239, 35.8139],
+    "Kozan":       [37.4522, 35.8139],
+    "Karataş":     [36.5661, 35.3872],
+  },
+  "Gaziantep": {
+    "Merkez (Şahinbey)":[37.0662, 37.3833],
+    "Şehitkamil":  [37.0742, 37.3244],
+    "Nizip":       [37.0078, 37.7947],
+    "İslahiye":    [37.0214, 36.6406],
+  },
+  "Samsun": {
+    "Merkez (İlkadım)":[41.2864, 36.3300],
+    "Atakum":      [41.3225, 36.2567],
+    "Canik":       [41.2661, 36.3556],
+    "Bafra":       [41.5681, 35.9097],
+    "Terme":       [41.2022, 36.9778],
+  },
+  "Trabzon": {
+    "Merkez (Ortahisar)":[41.0015, 39.7178],
+    "Akçaabat":    [41.0178, 39.5636],
+    "Of":          [40.9453, 40.2658],
+    "Sürmene":     [40.9117, 40.1136],
+  },
+  "Kayseri": {
+    "Merkez (Melikgazi)":[38.7225, 35.4875],
+    "Kocasinan":   [38.6997, 35.5272],
+    "Talas":       [38.6847, 35.5533],
+    "Develi":      [38.3856, 35.4886],
+  },
+  "Mersin": {
+    "Merkez (Yenişehir)":[36.8121, 34.6415],
+    "Akdeniz":     [36.8244, 34.6267],
+    "Mezitli":     [36.7814, 34.6119],
+    "Tarsus":      [36.9231, 34.8928],
+    "Silifke":     [36.3767, 33.9328],
+  },
+  "Diyarbakır": {
+    "Merkez (Bağlar)":[37.9144, 40.2306],
+    "Sur":         [37.9083, 40.2281],
+    "Kayapınar":   [37.9219, 40.1897],
+    "Ergani":      [38.2683, 39.7558],
+  },
+  "Hatay": {
+    "Merkez (Antakya)":[36.2058, 36.1600],
+    "İskenderun":  [36.5833, 36.1667],
+    "Dörtyol":     [36.8353, 36.2239],
+    "Reyhanlı":    [36.2669, 36.5553],
+  },
+  "Malatya": {
+    "Merkez (Battalgazi)":[38.3556, 38.3095],
+    "Yeşilyurt":   [38.3108, 38.2953],
+    "Doğanşehir":  [37.8811, 37.8839],
+  },
+  "Şanlıurfa": {
+    "Merkez (Eyyübiye)":[37.1591, 38.7969],
+    "Haliliye":    [37.1494, 38.8022],
+    "Karaköprü":   [37.1897, 38.8306],
+    "Birecik":     [37.0244, 37.9872],
+    "Suruç":       [36.9781, 38.5258],
+  },
+};
+
+// Varsayılan: her ilin merkezi için koordinat
+const IL_MERKEZ = {
+  "Adana":[37.0017,35.3289],"Adıyaman":[37.7648,38.2786],"Afyonkarahisar":[38.7507,30.5567],
+  "Ağrı":[39.7191,43.0503],"Amasya":[40.6499,35.8353],"Ankara":[39.9208,32.8541],
+  "Antalya":[36.8969,30.7133],"Artvin":[41.1828,41.8183],"Aydın":[37.8560,27.8416],
+  "Balıkesir":[39.6484,27.8826],"Bilecik":[40.1456,29.9792],"Bingöl":[38.8854,40.4983],
+  "Bitlis":[38.4014,42.1072],"Bolu":[40.7392,31.6089],"Burdur":[37.7261,30.2908],
+  "Bursa":[40.1908,29.0608],"Çanakkale":[40.1553,26.4142],"Çankırı":[40.6013,33.6134],
+  "Çorum":[40.5500,34.9556],"Denizli":[37.7765,29.0864],"Diyarbakır":[37.9144,40.2306],
+  "Edirne":[41.6818,26.5623],"Elazığ":[38.6810,39.2264],"Erzincan":[39.7500,39.5000],
+  "Erzurum":[39.9042,41.2679],"Eskişehir":[39.7767,30.5206],"Gaziantep":[37.0662,37.3833],
+  "Giresun":[40.9128,38.3895],"Gümüşhane":[40.4608,39.4814],"Hakkari":[37.5744,43.7408],
+  "Hatay":[36.2058,36.1600],"Isparta":[37.7648,30.5565],"İçel":[36.8121,34.6415],
+  "İstanbul":[41.0136,28.9550],"İzmir":[38.4237,27.1428],"Kars":[40.6013,43.0975],
+  "Kastamonu":[41.3887,33.7827],"Kayseri":[38.7225,35.4875],"Kırklareli":[41.7333,27.2167],
+  "Kırşehir":[39.1458,34.1603],"Kocaeli":[40.8533,29.8814],"Konya":[37.8714,32.4850],
+  "Kütahya":[39.4192,29.9836],"Malatya":[38.3556,38.3095],"Manisa":[38.6192,27.4289],
+  "Kahramanmaraş":[37.5858,36.9372],"Mardin":[37.3212,40.7245],"Muğla":[37.2153,28.3636],
+  "Muş":[38.7322,41.4918],"Nevşehir":[38.6939,34.6857],"Niğde":[37.9667,34.6833],
+  "Ordu":[40.9862,37.8797],"Rize":[41.0201,40.5234],"Sakarya":[40.7731,30.4042],
+  "Samsun":[41.2864,36.3300],"Siirt":[37.9333,41.9500],"Sinop":[42.0231,35.1531],
+  "Sivas":[39.7477,37.0179],"Tekirdağ":[40.9781,27.5114],"Tokat":[40.3167,36.5500],
+  "Trabzon":[41.0015,39.7178],"Tunceli":[39.1079,39.5481],"Şanlıurfa":[37.1591,38.7969],
+  "Uşak":[38.6823,29.4082],"Van":[38.4942,43.3800],"Yozgat":[39.8181,34.8147],
+  "Zonguldak":[41.4564,31.7987],"Aksaray":[38.3682,34.0370],"Bayburt":[40.2552,40.2249],
+  "Karaman":[37.1759,33.2287],"Kırıkkale":[39.8468,33.5153],"Batman":[37.8812,41.1351],
+  "Şırnak":[37.5181,42.4618],"Bartın":[41.6344,32.3375],"Ardahan":[41.1105,42.7022],
+  "Iğdır":[39.9167,44.0333],"Yalova":[40.6500,29.2667],"Karabük":[41.1944,32.6239],
+  "Kilis":[36.7184,37.1212],"Osmaniye":[37.0747,36.2478],"Düzce":[40.8438,31.1565],
+  "Mersin":[36.8121,34.6415]
+};
+
+// ─── State ─────────────────────────────────────────────────────────────────
+const GUN_ADLARI = ["Paz","Pzt","Sal","Çar","Per","Cum","Cmt"];
+const AY_ADLARI  = ["Ocak","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+
+let weekOffset = 0;
+let countdownInterval = null;
+let VAKITLER = {};   // { "YYYY-MM-DD": [sabah, ogle, aksam] }
+
+// Seçili konum
+let currentLoc = JSON.parse(localStorage.getItem('namaz_loc') || 'null') || {
+  il: "Balıkesir", ilce: "Ayvalık", lat: 39.3194, lng: 26.6969
+};
+
+// ─── Yardımcı ──────────────────────────────────────────────────────────────
+function padKey(date) {
+  const y = date.getFullYear();
+  const m = String(date.getMonth()+1).padStart(2,'0');
+  const d = String(date.getDate()).padStart(2,'0');
+  return `${y}-${m}-${d}`;
+}
+
+function parseTime(dateStr, timeStr) {
+  const [h,m] = timeStr.split(':').map(Number);
+  const base = new Date(dateStr + 'T00:00:00');
+  base.setHours(h, m, 0, 0);
+  return base;
+}
+
+function formatDate(date) {
+  return `${date.getDate()} ${AY_ADLARI[date.getMonth()]} ${date.getFullYear()}, ${GUN_ADLARI[date.getDay()]}`;
+}
+
+function getTodayKey() { return padKey(new Date()); }
+
+function showLoading(show) {
+  document.getElementById('api-loading').classList.toggle('show', show);
+}
+
+// ─── Aladhan API ─────────────────────────────────────────────────────────────
+async function fetchVakitler(lat, lng) {
+  showLoading(true);
+  VAKITLER = {};
+
+  const now = new Date();
+  const months = [];
+  
+  // Bu ay ve sonraki ay için çek
+  for (let i = 0; i <= 1; i++) {
+    const d = new Date(now.getFullYear(), now.getMonth() + i, 1);
+    months.push({ year: d.getFullYear(), month: d.getMonth() + 1 });
+  }
+
+  try {
+    for (const { year, month } of months) {
+      // Method 13 = Diyanet İşleri Başkanlığı
+      const url = `https://api.aladhan.com/v1/calendar/${year}/${month}?latitude=${lat}&longitude=${lng}&method=13&timezonestring=Europe/Istanbul`;
+      const res = await fetch(url);
+      const json = await res.json();
+      if (json.code === 200 && json.data) {
+        json.data.forEach(day => {
+          const date = day.date.gregorian.date; // DD-MM-YYYY
+          const [dd, mm, yyyy] = date.split('-');
+          const key = `${yyyy}-${mm}-${dd}`;
+          const t = day.timings;
+          // Saat kısmını al (HH:MM formatı, timezone bilgisini at)
+          const clean = (s) => s.replace(/\s*\(.*\)/, '').trim().slice(0,5);
+          VAKITLER[key] = [clean(t.Fajr), clean(t.Dhuhr), clean(t.Maghrib)];
+        });
+      }
+    }
+  } catch(e) {
+    console.error('Vakit API hatası:', e);
+    alert('Vakitler yüklenemedi. İnternet bağlantınızı kontrol edin.');
+  }
+
+  showLoading(false);
+  updateHeader();
+  updateCards();
+  renderWeekTable();
+  scheduleNotificationsIfGranted();
+}
+
+// ─── Konum Panel ──────────────────────────────────────────────────────────
+function toggleLocationPanel() {
+  const panel = document.getElementById('loc-panel');
+  const toggle = document.getElementById('loc-toggle');
+  const isOpen = panel.classList.toggle('open');
+  toggle.classList.toggle('open', isOpen);
+}
+
+function buildIlSelect() {
+  const sel = document.getElementById('sel-il');
+  ILLER.forEach(il => {
+    const opt = document.createElement('option');
+    opt.value = il;
+    opt.textContent = il;
+    if (il === currentLoc.il) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+function onIlChange() {
+  const il = document.getElementById('sel-il').value;
+  const selIlce = document.getElementById('sel-ilce');
+  const applyBtn = document.getElementById('loc-apply-btn');
+
+  selIlce.innerHTML = '<option value="">— İlçe —</option>';
+  selIlce.disabled = true;
+  applyBtn.disabled = true;
+
+  if (!il) return;
+
+  // Bu il için ilçe listesi var mı?
+  const ilceler = ILCE_COORDS[il];
+  if (ilceler) {
+    Object.keys(ilceler).sort().forEach(ilce => {
+      const opt = document.createElement('option');
+      opt.value = ilce;
+      opt.textContent = ilce;
+      if (il === currentLoc.il && ilce === currentLoc.ilce) opt.selected = true;
+      selIlce.appendChild(opt);
+    });
+    selIlce.disabled = false;
+    selIlce.addEventListener('change', onIlceChange);
+  } else {
+    // İl merkezini kullan
+    const opt = document.createElement('option');
+    opt.value = 'Merkez';
+    opt.textContent = 'Merkez';
+    opt.selected = true;
+    selIlce.appendChild(opt);
+    selIlce.disabled = false;
+    applyBtn.disabled = false;
+  }
+}
+
+function onIlceChange() {
+  const ilce = document.getElementById('sel-ilce').value;
+  document.getElementById('loc-apply-btn').disabled = !ilce;
+}
+
+function applyLocation() {
+  const il    = document.getElementById('sel-il').value;
+  const ilce  = document.getElementById('sel-ilce').value;
+  if (!il) return;
+
+  let lat, lng;
+
+  if (ILCE_COORDS[il] && ILCE_COORDS[il][ilce]) {
+    [lat, lng] = ILCE_COORDS[il][ilce];
+  } else if (IL_MERKEZ[il]) {
+    [lat, lng] = IL_MERKEZ[il];
+  } else {
+    alert('Koordinat bulunamadı.');
+    return;
+  }
+
+  currentLoc = { il, ilce: ilce || 'Merkez', lat, lng };
+  localStorage.setItem('namaz_loc', JSON.stringify(currentLoc));
+
+  // UI güncelle
+  document.getElementById('city-display').textContent = `${ilce || il} · ${il}`;
+  document.getElementById('footer-source').textContent = `aladhan.com · ${ilce || il}, ${il}`;
+  document.title = `${ilce || il} Namaz Vakitleri`;
+
+  // Panel kapat
+  toggleLocationPanel();
+
+  // Vakitleri yeniden çek
+  fetchVakitler(lat, lng);
+}
+
+// ─── Header ────────────────────────────────────────────────────────────────
+function updateHeader() {
+  const now = new Date();
+  document.getElementById('today-date').textContent = formatDate(now);
+  // Hicri tarihi yaklaşık göster (API'den alınabilir ama basit tutuyoruz)
+  const todayKey = getTodayKey();
+  const vakitGun = VAKITLER[todayKey];
+  // Aladhan API hicri date dönmüyor (calendar endpoint dönüyor ama cache'de yok),
+  // basit yaklaşık gösterim
+  document.getElementById('hijri-date').textContent = '١٤٤٧  هـ  — Hicri 1447';
+}
+
+// ─── Cards ─────────────────────────────────────────────────────────────────
+function getVakitForDay(key) { return VAKITLER[key] || null; }
+
+function updateCards() {
+  const now = new Date();
+  const todayKey = getTodayKey();
+  const v = getVakitForDay(todayKey);
+  if (!v) return;
+
+  const prayers = [
+    { id: 'sabah', label: 'Sabah Namazı', time: v[0] },
+    { id: 'ogle',  label: 'Öğle Namazı',  time: v[1] },
+    { id: 'aksam', label: 'Akşam Namazı', time: v[2] },
+  ];
+
+  let nextPrayer = null, nextTime = null;
+
+  prayers.forEach(p => {
+    const t = parseTime(todayKey, p.time);
+    const card = document.getElementById('card-' + p.id);
+    const timeEl = document.getElementById('time-' + p.id);
+    const statusEl = document.getElementById('status-' + p.id);
+    timeEl.textContent = p.time;
+    card.classList.remove('active','passed');
+
+    if (now < t) {
+      if (!nextPrayer) {
+        nextPrayer = p; nextTime = t;
+        card.classList.add('active');
+        statusEl.textContent = 'Sıradaki';
+      } else {
+        statusEl.textContent = 'Bekliyor';
+      }
+    } else {
+      card.classList.add('passed');
+      statusEl.textContent = 'Kılındı';
+    }
+  });
+
+  if (!nextPrayer) {
+    const tomorrowKey = padKey(new Date(now.getTime() + 86400000));
+    const tv = getVakitForDay(tomorrowKey);
+    if (tv) {
+      nextPrayer = { id: 'sabah', label: 'Sabah Namazı (Yarın)', time: tv[0] };
+      nextTime = parseTime(tomorrowKey, tv[0]);
+    }
+  }
+
+  if (nextPrayer && nextTime) {
+    document.getElementById('next-prayer-name').textContent = nextPrayer.label;
+    document.getElementById('next-prayer-time').textContent =
+      nextPrayer.time + ' · ' + (nextTime.getDate() === now.getDate() ? 'bugün' : 'yarın');
+    startCountdown(nextTime);
+  }
+}
+
+// ─── Countdown ─────────────────────────────────────────────────────────────
+function startCountdown(target) {
+  if (countdownInterval) clearInterval(countdownInterval);
+  function tick() {
+    const diff = target - new Date();
+    if (diff <= 0) {
+      document.getElementById('countdown').innerHTML = '<span>Vakit Girdi!</span>';
+      setTimeout(updateCards, 3000);
+      return;
+    }
+    const h = Math.floor(diff / 3600000);
+    const m = Math.floor((diff % 3600000) / 60000);
+    const s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('countdown').innerHTML =
+      `<span>${String(h).padStart(2,'0')}</span>:<span>${String(m).padStart(2,'0')}</span>:<span>${String(s).padStart(2,'0')}</span>`;
+  }
+  tick();
+  countdownInterval = setInterval(tick, 1000);
+}
+
+// ─── Week Table ─────────────────────────────────────────────────────────────
+function renderWeekTable() {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const todayKey = padKey(today);
+  const rows = document.getElementById('week-rows');
+  rows.innerHTML = '';
+
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow + 6) % 7) + (weekOffset * 7));
+
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    const key = padKey(d);
+    const v = getVakitForDay(key);
+    const isToday = key === todayKey;
+
+    const row = document.createElement('div');
+    row.className = 'week-row' + (isToday ? ' today' : '');
+
+    const dayLabel = `${GUN_ADLARI[d.getDay()]} ${d.getDate()} ${AY_ADLARI[d.getMonth()]}`;
+
+    row.innerHTML = `
+      <div class="day-name">${dayLabel}</div>
+      <div class="sabah-col">${v ? v[0] : '—'}</div>
+      <div class="ogle-col">${v ? v[1] : '—'}</div>
+      <div class="aksam-col">${v ? v[2] : '—'}</div>
+    `;
+    rows.appendChild(row);
+  }
+}
+
+function shiftWeek(dir) {
+  weekOffset += dir;
+  renderWeekTable();
+}
+
+// ─── Notifications ──────────────────────────────────────────────────────────
+function requestNotif() {
+  if (!('Notification' in window)) {
+    alert('Tarayıcınız bildirimleri desteklemiyor.');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    const btn = document.getElementById('notif-btn');
+    const bar = document.getElementById('notif-bar');
+    if (perm === 'granted') {
+      btn.textContent = '✓ Aktif';
+      btn.disabled = true;
+      document.querySelector('.notif-text').textContent = '✅ Bildirimler açık — namaz vakitlerinde uyarı alacaksın';
+      scheduleNotificationsIfGranted();
+    } else {
+      bar.style.display = 'none';
+    }
+  });
+}
+
+function scheduleNotificationsIfGranted() {
+  if (Notification.permission !== 'granted') return;
+  const todayKey = getTodayKey();
+  const v = getVakitForDay(todayKey);
+  if (!v) return;
+
+  const names = ['Sabah Namazı', 'Öğle Namazı', 'Akşam Namazı'];
+  v.forEach((t, i) => {
+    const prayerTime = parseTime(todayKey, t);
+    const notifTime = new Date(prayerTime.getTime() - 10 * 60000);
+    const delay = notifTime - new Date();
+    if (delay > 0) {
+      setTimeout(() => {
+        new Notification('🕌 ' + names[i] + ' vakti yaklaşıyor', {
+          body: `${currentLoc.ilce} · ${t} — 10 dakika kaldı`,
+          icon: 'https://i.imgur.com/mosque.png'
+        });
+      }, delay);
+    }
+  });
+}
+
+// ─── Init ────────────────────────────────────────────────────────────────────
+(function init() {
+  // İl select'i doldur
+  buildIlSelect();
+
+  // Konum başlığını güncelle
+  document.getElementById('city-display').textContent = `${currentLoc.ilce} · ${currentLoc.il}`;
+  document.getElementById('footer-source').textContent = `aladhan.com · ${currentLoc.ilce}, ${currentLoc.il}`;
+  document.title = `${currentLoc.ilce} Namaz Vakitleri`;
+
+  // İl seçimini dropdown'da ayarla
+  setTimeout(() => {
+    const selIl = document.getElementById('sel-il');
+    selIl.value = currentLoc.il;
+    onIlChange();
+    setTimeout(() => {
+      const selIlce = document.getElementById('sel-ilce');
+      if (selIlce) selIlce.value = currentLoc.ilce;
+      onIlceChange();
+    }, 50);
+  }, 100);
+
+  // Notif kontrolü
+  if (Notification.permission === 'granted') {
+    document.getElementById('notif-btn').textContent = '✓ Aktif';
+    document.getElementById('notif-btn').disabled = true;
+    document.querySelector('.notif-text').textContent = '✅ Bildirimler açık';
+  } else if (Notification.permission === 'denied') {
+    document.getElementById('notif-bar').style.display = 'none';
+  }
+
+  // Vakitleri çek
+  fetchVakitler(currentLoc.lat, currentLoc.lng);
+
+  // Her dakika güncelle
+  setInterval(updateCards, 60000);
+})();
+</script>
+</body>
+</html>
